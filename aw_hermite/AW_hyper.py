@@ -10,7 +10,7 @@ from scipy.special import wofz
 import pickle
 
 # number of moments
-Nv = 11
+Nv = 12
 
 # symbolic variables
 xi = symbols('xi')

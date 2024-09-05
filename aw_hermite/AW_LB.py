@@ -12,7 +12,7 @@ import pickle
 
 
 # number of moments
-Nv = 10
+Nv = 11
 
 # symbolic variables
 xi = symbols('xi')
