@@ -1,4 +1,5 @@
 import sys, os
+
 sys.path.append(os.path.abspath(os.path.join('..')))
 
 import sympy
@@ -21,33 +22,33 @@ k = symbols('k', integer=True)
 
 # advection matrix (off-diagonal)
 vec = sympy.zeros(Nv)
-for jj in range(1, Nv+1):
-    vec[jj-1] = sympy.sqrt(jj)/ (sympy.sqrt(2))
+for jj in range(1, Nv + 1):
+    vec[jj - 1] = sympy.sqrt(jj) / (sympy.sqrt(2))
 
 # advection matrix (main-diagonal)
 vec2 = sympy.zeros(Nv)
-for jj in range(0, Nv+1):
+for jj in range(0, Nv + 1):
     # hyper collisions coefficient
-    vec2[jj] = sympy.Rational((jj)*(jj-1)*(jj-2), (Nv-1)*(Nv-2)*(Nv-3))
+    vec2[jj] = sympy.Rational(jj * (jj - 1) * (jj - 2), (Nv - 1) * (Nv - 2) * (Nv - 3))
 
 # enforce k=1 for simplicity now
-k=1
+k = 1
 
 # create an advection tri-diagonal matrix
-A = banded({1: tuple(vec[0, :-1]), -1: tuple(vec[0, :-1]), 0: tuple(nu*vec2[0, :]/(sympy.I*sympy.sqrt(2)*k))})
+A = banded({1: tuple(vec[0, :-1]), -1: tuple(vec[0, :-1]), 0: tuple(nu * vec2[0, :] / (sympy.I * sympy.sqrt(2) * k))})
 
-# idenitity matrix
+# identity matrix
 I = np.eye(Nv, dtype=int)
 
 # invert matrix
-M = sympy.Matrix(I*xi - k/ np.abs(k) * A)
+M = sympy.Matrix(I * xi - k / np.abs(k) * A)
 
 # get final response function
-R_approx = sympy.simplify(sympy.simplify(M.inv()[0, 1]/sympy.sqrt(2) * k / np.abs(k)))
+R_approx = sympy.simplify(sympy.simplify(M.inv()[0, 1] / sympy.sqrt(2) * k / np.abs(k)))
 
 asymptotics_0 = R_approx.series(xi, 0, 2)
 
-func = sympy.lambdify(nu, asymptotics_0.coeff(xi, 1) + sympy.I*sympy.sqrt(sympy.pi), modules='numpy')
+func = sympy.lambdify(nu, asymptotics_0.coeff(xi, 1) + sympy.I * sympy.sqrt(sympy.pi), modules='numpy')
 sol_coeff = scipy.optimize.newton(func, x0=1, maxiter=20000, rtol=1e-3, full_output=True)
 
 # save optimal nu (for k=1)

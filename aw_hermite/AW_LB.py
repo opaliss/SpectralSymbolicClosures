@@ -16,8 +16,8 @@ Nv = 11
 
 # symbolic variables
 xi = symbols('xi')
-nu = symbols('nu', real = True) # must be real and not complex
-k = symbols('k', integer = True) # must be an integer from defintion
+nu = symbols('nu', real=True)  # must be real and not complex
+k = symbols('k', integer=True)  # must be an integer from definition
 
 # advection matrix (off-diagonal)
 vec = sympy.zeros(Nv)
@@ -38,11 +38,11 @@ k = 1
 # create an advection tri-diagonal matrix
 A = banded({1: tuple(vec[0, :-1]), -1: tuple(vec[0, :-1]), 0: tuple(nu*vec2[0, :]/(sympy.I*sympy.sqrt(2)*k))})
 
-# idenitity matrix
+# identity matrix
 I = np.eye(Nv, dtype=int)
 
 # invert matrix
-M = sympy.Matrix(I*xi - k/ np.abs(k) * A)
+M = sympy.Matrix(I*xi - k / np.abs(k) * A)
 
 # get final response function
 R_approx = sympy.simplify(sympy.simplify(M.inv()[0, 1]/sympy.sqrt(2) * k / np.abs(k)))
