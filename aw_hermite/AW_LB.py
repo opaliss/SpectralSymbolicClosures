@@ -33,7 +33,7 @@ for jj in range(0, Nv+1):
 
 
 # enforce k=1 for simplicity now
-k=1
+k = 1
 
 # create an advection tri-diagonal matrix
 A = banded({1: tuple(vec[0, :-1]), -1: tuple(vec[0, :-1]), 0: tuple(nu*vec2[0, :]/(sympy.I*sympy.sqrt(2)*k))})
@@ -60,4 +60,7 @@ with open("optimal_nu_LB/nu_" + str(Nv) + ".txt", "wb") as outf:
 # save optimal R(nu*) (for k=1)
 with open("optimal_R_LB/R_" + str(Nv) + ".txt", "wb") as outf:
     pickle.dump(sympy.simplify(R_approx.subs(nu, sol_coeff[0].real)), outf)
+
+print(sol_coeff)
+print("task completed!")
 
