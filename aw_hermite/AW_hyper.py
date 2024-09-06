@@ -17,7 +17,7 @@ Nv = 14
 xi = symbols('xi')
 # must be real and not complex
 nu = symbols('nu', real=True)
-# must be an integer from definItion
+# must be an integer from definition
 k = symbols('k', integer=True)
 
 # advection matrix (off-diagonal)
