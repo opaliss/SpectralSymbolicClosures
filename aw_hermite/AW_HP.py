@@ -11,7 +11,7 @@ import scipy
 import pickle
 
 # setup the number of Hermite moments
-Nv = 16
+Nv = 18
 
 # initialize the symbolic variables
 xi = symbols('xi')
@@ -48,10 +48,10 @@ sol_coeff = sympy.solve([asymptotics_0.coeff(xi, 0) + 1,
 
 
 # save optimal (a, b, c)
-with open("optimal_c_HP/coeff_" + str(Nv) + ".txt", "wb") as outf:
+with open("optimal_q2_HP/coeff_" + str(Nv) + ".txt", "wb") as outf:
     pickle.dump(sol_coeff[0], outf)
 
 
 # save optimal R(a, b, c)
-with open("optimal_R_HP/R_" + str(Nv) + ".txt", "wb") as outf:
+with open("optimal_R_HP_q2/R_" + str(Nv) + ".txt", "wb") as outf:
     pickle.dump(sympy.simplify(R_approx.subs([(a, sol_coeff[0][0]), (b, sol_coeff[0][1]), (c, sol_coeff[0][2])])), outf)
