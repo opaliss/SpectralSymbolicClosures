@@ -156,11 +156,12 @@ def A_matrix_off(M0, MF, D, closure_type="truncation"):
     if closure_type == "truncation":
         return scipy.sparse.kron(A, D, format="csr")
     elif closure_type == "hammett_perkins":
-        A_off = scipy.sparse.kron(A, D, format="csr")
+        A_off = np.kron(A, D)
         Nx_total = np.shape(D)[0]
-        with open("../aw_hermite/optimal_q1_HP/coeff_" + str(MF) + ".txt", "wb") as outf:
-            c = pickle.load(outf)
-        A_off[(MF - 1) * Nx_total:, (MF - 1) * Nx_total:] = np.sqrt(MF / 2) * c * 1j * D @ k_matrix(Nx=(Nx_total - 1) // 2)
+        with open("../aw_hermite/optimal_q1_HP/coeff_" + str(MF) + ".txt", "rb") as outf:
+            print(outf)
+            c = float(pickle.load(outf))
+        A_off[(MF - 1) * Nx_total:, (MF - 1) * Nx_total:] = - np.sqrt(MF / 2) * c * 1j * D @ k_matrix(Nx=(Nx_total - 1) // 2)
         return A_off
 
 
@@ -173,7 +174,7 @@ def k_matrix(Nx):
     K_matrix = np.zeros((2 * Nx + 1, 2 * Nx + 1))
     for ii, kk in enumerate(range(-Nx, Nx + 1)):
         if kk != 0:
-            K_matrix[ii, ii] = kk / np.abs(kk)
+            K_matrix[ii, ii] = np.sign(kk)
     return K_matrix
 
 
@@ -313,22 +314,162 @@ def charge_density_two_stream(alpha_e1, alpha_e2, alpha_i, q_e1, q_e2, q_i, C0_e
     """
     return q_e1 * alpha_e1 * C0_electron_1 + q_e2 * alpha_e2 * C0_electron_2 + q_i * alpha_i * C0_ions
 
+#
+# def total_mass(psi, alpha_e, alpha_i, Nv, Nx_total, L):
+#     """ N(t)
+#
+#     :param psi: array, array of all coefficients of size ((Nv)*(2Nx + 1))
+#     :param alpha_e: float, velocity scaling of electrons
+#     :param alpha_i: float, velocity scaling of ions
+#     :param Nv: int, total number of Hermite spectral terms (Nv)
+#     :param Nx_total: int, number of Fourier spectral terms
+#     :param L: float, length of spatial domain
+#     :return: N(t)
+#     """
+#     return L * (alpha_e * psi[0] + alpha_i * psi[Nv * Nx_total])
+#
+#
+# def total_mass_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L):
+#     """ N(t)
+#
+#     :param psi: array, array of all coefficients of size (3*(Nv)*(2Nx + 1))
+#     :param alpha_e1: float, velocity scaling of electrons species 1
+#     :param alpha_e2: float, velocity scaling of electrons species 2
+#     :param alpha_i: float, velocity scaling of ions
+#     :param Nv: int, total number of Hermite spectral terms (Nv)
+#     :param Nx_total: int, number of Fourier spectral terms
+#     :param L: float, length of spatial domain
+#     :return: N(t)
+#     """
+#     return L * (alpha_e1 * psi[0] + alpha_e2 * psi[Nv * Nx_total] + alpha_i * psi[2 * Nv * Nx_total])
+#
+#
+# def total_momentum(psi, alpha_e, alpha_i, Nv, Nx_total, L, m_i, m_e, u_e, u_i):
+#     """P(t)
+#
+#     :param psi: array, array of all coefficients of size ((Nv)*(2Nx + 1))
+#     :param alpha_e: float, velocity scaling of electrons
+#     :param alpha_i: float, velocity scaling of ions
+#     :param Nv: int, total number of Hermite spectral terms (Nv)
+#     :param L: float, length of spatial domain
+#     :param m_i: float, mass of ions (normalized to electron)
+#     :param m_e: float, mass of electrons  (normalized to electron, i.e. 1)
+#     :param u_e: float, velocity shifting parameter of electrons
+#     :param u_i: float, velocity shifting parameter of ions
+#     :param Nx_total: int, number of Fourier spectral terms
+#     :return: P(t)
+#     """
+#     electron_momentum = m_e * alpha_e * L * (alpha_e * psi[Nx_total] / np.sqrt(2) + u_e * psi[0])
+#     ion_momentum = m_i * alpha_i * L * (alpha_i * psi[Nv * Nx_total + Nx_total] / np.sqrt(2)
+#                                         + u_i * psi[Nv * Nx_total])
+#     return electron_momentum + ion_momentum
+#
+#
+# def total_momentum_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L, m_i, m_e1, m_e2, u_e1, u_e2, u_i):
+#     """P(t)
+#
+#     :param psi: array, array of all coefficients of size ((Nv)*(2Nx + 1))
+#     :param alpha_e1: float, velocity scaling of electrons species 1
+#     :param alpha_e2: float, velocity scaling of electrons species 2
+#     :param alpha_i: float, velocity scaling of ions
+#     :param Nv: int, total number of Hermite spectral terms (Nv)
+#     :param L: float, length of spatial domain
+#     :param m_i: float, mass of ions (normalized to electron)
+#     :param m_e1: float, mass of electrons species 1 (normalized to electron, i.e. 1)
+#     :param m_e2: float, mass of electrons species 2 (normalized to electron, i.e. 1)
+#     :param u_e1: float, velocity shifting parameter of electrons species 1
+#     :param u_e2: float, velocity shifting parameter of electrons species 2
+#     :param u_i: float, velocity shifting parameter of ions
+#     :param Nx_total: int, number of Fourier spectral terms
+#     :return: P(t)
+#     """
+#     electron1_momentum = m_e1 * alpha_e1 * L * (alpha_e1 * psi[Nx_total] / np.sqrt(2) + u_e1 * psi[0])
+#     electron2_momentum = m_e2 * alpha_e2 * L * (alpha_e2 * psi[Nv * Nx_total + Nx_total] / np.sqrt(2)
+#                                                 + u_e2 * psi[Nv * Nx_total])
+#     ion_momentum = m_i * alpha_i * L * (alpha_i * psi[2 * Nv * Nx_total + Nx_total] / np.sqrt(2)
+#                                         + u_i * psi[2 * Nv * Nx_total])
+#     return electron1_momentum + electron2_momentum + ion_momentum
+#
+#
+# def total_energy_k(psi, alpha_e, alpha_i, Nv, Nx_total, L, u_e, u_i, m_e, m_i):
+#     """E_{k}(t)
+#
+#     :param m_i: float, mass of ions (normalized to electron)
+#     :param m_e: float, mass of electrons  (normalized to electron, i.e. 1)
+#     :param psi: array, array of all coefficients of size ((Nv)*(2Nx + 1))
+#     :param alpha_e: float, velocity scaling of electrons
+#     :param alpha_i: float, velocity scaling of ions
+#     :param Nv: int, total number of Hermite spectral terms (Nv)
+#     :param Nx_total: int, number of Fourier spectral terms
+#     :param L: float, length of spatial domain
+#     :param u_e: float, velocity shifting parameter of electrons
+#     :param u_i: float, velocity shifting parameter of ions
+#     :return: E_{k}(t)
+#     """
+#     # electron kinetic energy
+#     electron_kin = 0.5 * L * alpha_e * (alpha_e ** 2 * psi[2 * Nx_total] / np.sqrt(2)
+#                                         + np.sqrt(2) * u_e * alpha_e * psi[Nx_total]
+#                                         + ((alpha_e ** 2) / 2 + u_e ** 2) * psi[0])
+#
+#     # ion kinetic energy
+#     ion_kin = 0.5 * L * alpha_i * (alpha_i ** 2 * psi[Nx_total * Nv + 2 * Nx_total] / np.sqrt(2)
+#                                    + np.sqrt(2) * u_i * alpha_i * psi[Nx_total * Nv + Nx_total]
+#                                    + ((alpha_i ** 2) / 2 + u_i ** 2) * psi[Nx_total * Nv])
+#     return m_e * electron_kin + m_i * ion_kin
+#
+#
+# def total_energy_k_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L, u_e1, u_e2, u_i, m_e1, m_e2, m_i):
+#     """E_{k}(t)
+#
+#     :param m_i: float, mass of ions (normalized to electron)
+#     :param m_e1: float, mass of electrons species 1 (normalized to electron, i.e. 1)
+#     :param m_e2: float, mass of electrons species 2 (normalized to electron, i.e. 1)
+#     :param psi: array, array of all coefficients of size ((Nv)*(2Nx + 1))
+#     :param alpha_e1: float, velocity scaling of electrons species 1
+#     :param alpha_e2: float, velocity scaling of electrons species 1
+#     :param alpha_i: float, velocity scaling of ions
+#     :param Nv: int, total number of Hermite spectral terms (Nv)
+#     :param Nx_total: int, number of Fourier spectral terms
+#     :param L: float, length of spatial domain
+#     :param u_e1: float, velocity shifting parameter of electrons species 1
+#     :param u_e2: float, velocity shifting parameter of electrons species 2
+#     :param u_i: float, velocity shifting parameter of ions
+#     :return: E_{k}(t)
+#     """
+#     # electron species 1 kinetic energy
+#     electron1_kin = 0.5 * L * alpha_e1 * (alpha_e1 ** 2 * psi[2 * Nx_total] / np.sqrt(2)
+#                                           + np.sqrt(2) * u_e1 * alpha_e1 * psi[Nx_total]
+#                                           + ((alpha_e1 ** 2) / 2 + u_e1 ** 2) * psi[0])
+#
+#     # electron species 2 kinetic energy
+#     electron2_kin = 0.5 * L * alpha_e2 * (alpha_e2 ** 2 * psi[Nx_total * Nv + 2 * Nx_total] / np.sqrt(2)
+#                                           + np.sqrt(2) * u_e2 * alpha_e2 * psi[Nx_total * Nv + Nx_total]
+#                                           + ((alpha_e2 ** 2) / 2 + u_e2 ** 2) * psi[Nx_total * Nv])
+#
+#     # ion kinetic energy
+#     ion_kin = 0.5 * L * alpha_i * (alpha_i ** 2 * psi[2 * Nx_total * Nv + 2 * Nx_total] / np.sqrt(2)
+#                                    + np.sqrt(2) * u_i * alpha_i * psi[2 * Nx_total * Nv + Nx_total]
+#                                    + ((alpha_i ** 2) / 2 + u_i ** 2) * psi[2 * Nx_total * Nv])
+#
+#     return m_e1 * electron1_kin + m_e2 * electron2_kin + m_i * ion_kin
 
-def total_mass(psi, alpha_e, alpha_i, Nv, Nx_total, L):
+
+
+def total_mass(psi, alpha_e, alpha_i, Nv, Nx, L):
     """ N(t)
 
     :param psi: array, array of all coefficients of size ((Nv)*(2Nx + 1))
     :param alpha_e: float, velocity scaling of electrons
     :param alpha_i: float, velocity scaling of ions
     :param Nv: int, total number of Hermite spectral terms (Nv)
-    :param Nx_total: int, number of Fourier spectral terms
+    :param Nx: int, number of Fourier spectral terms
     :param L: float, length of spatial domain
     :return: N(t)
     """
-    return L * (alpha_e * psi[0] + alpha_i * psi[Nv * Nx_total])
+    return L * (alpha_e * psi[Nx] + alpha_i * psi[Nv * (2 * Nx + 1) + Nx])
 
 
-def total_mass_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L):
+def total_mass_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx, L):
     """ N(t)
 
     :param psi: array, array of all coefficients of size (3*(Nv)*(2Nx + 1))
@@ -336,14 +477,16 @@ def total_mass_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L):
     :param alpha_e2: float, velocity scaling of electrons species 2
     :param alpha_i: float, velocity scaling of ions
     :param Nv: int, total number of Hermite spectral terms (Nv)
-    :param Nx_total: int, number of Fourier spectral terms
+    :param Nx: int, number of Fourier spectral terms
     :param L: float, length of spatial domain
     :return: N(t)
     """
-    return L * (alpha_e1 * psi[0] + alpha_e2 * psi[Nv * Nx_total] + alpha_i * psi[2 * Nv * Nx_total])
+    return L * (alpha_e1 * psi[Nx]
+                + alpha_e2 * psi[Nv * (2 * Nx + 1) + Nx]
+                + alpha_i * psi[2 * Nv * (2 * Nx + 1) + Nx])
 
 
-def total_momentum(psi, alpha_e, alpha_i, Nv, Nx_total, L, m_i, m_e, u_e, u_i):
+def total_momentum(psi, alpha_e, alpha_i, Nv, Nx, L, m_i, m_e, u_e, u_i):
     """P(t)
 
     :param psi: array, array of all coefficients of size ((Nv)*(2Nx + 1))
@@ -355,16 +498,16 @@ def total_momentum(psi, alpha_e, alpha_i, Nv, Nx_total, L, m_i, m_e, u_e, u_i):
     :param m_e: float, mass of electrons  (normalized to electron, i.e. 1)
     :param u_e: float, velocity shifting parameter of electrons
     :param u_i: float, velocity shifting parameter of ions
-    :param Nx_total: int, number of Fourier spectral terms
+    :param Nx: int, number of Fourier spectral terms
     :return: P(t)
     """
-    electron_momentum = m_e * alpha_e * L * (alpha_e * psi[Nx_total] / np.sqrt(2) + u_e * psi[0])
-    ion_momentum = m_i * alpha_i * L * (alpha_i * psi[Nv * Nx_total + Nx_total] / np.sqrt(2)
-                                        + u_i * psi[Nv * Nx_total])
+    electron_momentum = m_e * alpha_e * L * (alpha_e * psi[(2 * Nx + 1) + Nx] / np.sqrt(2) + u_e * psi[Nx])
+    ion_momentum = m_i * alpha_i * L * (alpha_i * psi[Nv * (2 * Nx + 1) + (2 * Nx + 1) + Nx] / np.sqrt(2)
+                                        + u_i * psi[Nv * (2 * Nx + 1) + Nx])
     return electron_momentum + ion_momentum
 
 
-def total_momentum_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L, m_i, m_e1, m_e2, u_e1, u_e2, u_i):
+def total_momentum_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx, L, m_i, m_e1, m_e2, u_e1, u_e2, u_i):
     """P(t)
 
     :param psi: array, array of all coefficients of size ((Nv)*(2Nx + 1))
@@ -379,18 +522,18 @@ def total_momentum_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L,
     :param u_e1: float, velocity shifting parameter of electrons species 1
     :param u_e2: float, velocity shifting parameter of electrons species 2
     :param u_i: float, velocity shifting parameter of ions
-    :param Nx_total: int, number of Fourier spectral terms
+    :param Nx: int, number of Fourier spectral terms
     :return: P(t)
     """
-    electron1_momentum = m_e1 * alpha_e1 * L * (alpha_e1 * psi[Nx_total] / np.sqrt(2) + u_e1 * psi[0])
-    electron2_momentum = m_e2 * alpha_e2 * L * (alpha_e2 * psi[Nv * Nx_total + Nx_total] / np.sqrt(2)
-                                                + u_e2 * psi[Nv * Nx_total])
-    ion_momentum = m_i * alpha_i * L * (alpha_i * psi[2 * Nv * Nx_total + Nx_total] / np.sqrt(2)
-                                        + u_i * psi[2 * Nv * Nx_total])
+    electron1_momentum = m_e1 * alpha_e1 * L * (alpha_e1 * psi[(2 * Nx + 1) + Nx] / np.sqrt(2) + u_e1 * psi[Nx])
+    electron2_momentum = m_e2 * alpha_e2 * L * (alpha_e2 * psi[Nv * (2 * Nx + 1) + (2 * Nx + 1) + Nx] / np.sqrt(2)
+                                                + u_e2 * psi[Nv * (2 * Nx + 1) + Nx])
+    ion_momentum = m_i * alpha_i * L * (alpha_i * psi[2 * Nv * (2 * Nx + 1) + (2 * Nx + 1) + Nx] / np.sqrt(2)
+                                        + u_i * psi[2 * Nv * (2 * Nx + 1) + Nx])
     return electron1_momentum + electron2_momentum + ion_momentum
 
 
-def total_energy_k(psi, alpha_e, alpha_i, Nv, Nx_total, L, u_e, u_i, m_e, m_i):
+def total_energy_k(psi, alpha_e, alpha_i, Nv, Nx, L, u_e, u_i, m_e, m_i):
     """E_{k}(t)
 
     :param m_i: float, mass of ions (normalized to electron)
@@ -399,25 +542,25 @@ def total_energy_k(psi, alpha_e, alpha_i, Nv, Nx_total, L, u_e, u_i, m_e, m_i):
     :param alpha_e: float, velocity scaling of electrons
     :param alpha_i: float, velocity scaling of ions
     :param Nv: int, total number of Hermite spectral terms (Nv)
-    :param Nx_total: int, number of Fourier spectral terms
+    :param Nx: int, number of Fourier spectral terms
     :param L: float, length of spatial domain
     :param u_e: float, velocity shifting parameter of electrons
     :param u_i: float, velocity shifting parameter of ions
     :return: E_{k}(t)
     """
     # electron kinetic energy
-    electron_kin = 0.5 * L * alpha_e * (alpha_e ** 2 * psi[2 * Nx_total] / np.sqrt(2)
-                                        + np.sqrt(2) * u_e * alpha_e * psi[Nx_total]
-                                        + ((alpha_e ** 2) / 2 + u_e ** 2) * psi[0])
+    electron_kin = 0.5 * L * alpha_e * (alpha_e ** 2 * psi[2 * (2 * Nx + 1) + Nx] / np.sqrt(2)
+                                        + np.sqrt(2) * u_e * alpha_e * psi[(2 * Nx + 1) + Nx]
+                                        + ((alpha_e ** 2) / 2 + u_e ** 2) * psi[Nx])
 
     # ion kinetic energy
-    ion_kin = 0.5 * L * alpha_i * (alpha_i ** 2 * psi[Nx_total * Nv + 2 * Nx_total] / np.sqrt(2)
-                                   + np.sqrt(2) * u_i * alpha_i * psi[Nx_total * Nv + Nx_total]
-                                   + ((alpha_i ** 2) / 2 + u_i ** 2) * psi[Nx_total * Nv])
+    ion_kin = 0.5 * L * alpha_i * (alpha_i ** 2 * psi[(2 * Nx + 1) * Nv + 2 * (2 * Nx + 1) + Nx] / np.sqrt(2)
+                                   + np.sqrt(2) * u_i * alpha_i * psi[(2 * Nx + 1) * Nv + (2 * Nx + 1) + Nx]
+                                   + ((alpha_i ** 2) / 2 + u_i ** 2) * psi[(2 * Nx + 1) * Nv + Nx])
     return m_e * electron_kin + m_i * ion_kin
 
 
-def total_energy_k_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L, u_e1, u_e2, u_i, m_e1, m_e2, m_i):
+def total_energy_k_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx, L, u_e1, u_e2, u_i, m_e1, m_e2, m_i):
     """E_{k}(t)
 
     :param m_i: float, mass of ions (normalized to electron)
@@ -428,7 +571,7 @@ def total_energy_k_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L,
     :param alpha_e2: float, velocity scaling of electrons species 1
     :param alpha_i: float, velocity scaling of ions
     :param Nv: int, total number of Hermite spectral terms (Nv)
-    :param Nx_total: int, number of Fourier spectral terms
+    :param Nx: int, number of Fourier spectral terms
     :param L: float, length of spatial domain
     :param u_e1: float, velocity shifting parameter of electrons species 1
     :param u_e2: float, velocity shifting parameter of electrons species 2
@@ -436,18 +579,18 @@ def total_energy_k_two_stream(psi, alpha_e1, alpha_e2, alpha_i, Nv, Nx_total, L,
     :return: E_{k}(t)
     """
     # electron species 1 kinetic energy
-    electron1_kin = 0.5 * L * alpha_e1 * (alpha_e1 ** 2 * psi[2 * Nx_total] / np.sqrt(2)
-                                          + np.sqrt(2) * u_e1 * alpha_e1 * psi[Nx_total]
-                                          + ((alpha_e1 ** 2) / 2 + u_e1 ** 2) * psi[0])
+    electron1_kin = 0.5 * L * alpha_e1 * (alpha_e1 ** 2 * psi[2 * (2 * Nx + 1) + Nx] / np.sqrt(2)
+                                          + np.sqrt(2) * u_e1 * alpha_e1 * psi[(2 * Nx + 1) + Nx]
+                                          + ((alpha_e1 ** 2) / 2 + u_e1 ** 2) * psi[Nx])
 
     # electron species 2 kinetic energy
-    electron2_kin = 0.5 * L * alpha_e2 * (alpha_e2 ** 2 * psi[Nx_total * Nv + 2 * Nx_total] / np.sqrt(2)
-                                          + np.sqrt(2) * u_e2 * alpha_e2 * psi[Nx_total * Nv + Nx_total]
-                                          + ((alpha_e2 ** 2) / 2 + u_e2 ** 2) * psi[Nx_total * Nv])
+    electron2_kin = 0.5 * L * alpha_e2 * (alpha_e2 ** 2 * psi[(2 * Nx + 1) * Nv + 2 * (2 * Nx + 1) + Nx] / np.sqrt(2)
+                                          + np.sqrt(2) * u_e2 * alpha_e2 * psi[(2 * Nx + 1) * Nv + (2 * Nx + 1) + Nx]
+                                          + ((alpha_e2 ** 2) / 2 + u_e2 ** 2) * psi[(2 * Nx + 1) * Nv + Nx])
 
     # ion kinetic energy
-    ion_kin = 0.5 * L * alpha_i * (alpha_i ** 2 * psi[2 * Nx_total * Nv + 2 * Nx_total] / np.sqrt(2)
-                                   + np.sqrt(2) * u_i * alpha_i * psi[2 * Nx_total * Nv + Nx_total]
-                                   + ((alpha_i ** 2) / 2 + u_i ** 2) * psi[2 * Nx_total * Nv])
+    ion_kin = 0.5 * L * alpha_i * (alpha_i ** 2 * psi[2 * (2 * Nx + 1) * Nv + 2 * (2 * Nx + 1) + Nx] / np.sqrt(2)
+                                   + np.sqrt(2) * u_i * alpha_i * psi[2 * (2 * Nx + 1) * Nv + (2 * Nx + 1) + Nx]
+                                   + ((alpha_i ** 2) / 2 + u_i ** 2) * psi[2 * (2 * Nx + 1) * Nv + Nx])
 
     return m_e1 * electron1_kin + m_e2 * electron2_kin + m_i * ion_kin
