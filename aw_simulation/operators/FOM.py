@@ -1,9 +1,10 @@
 """Operators of the Spectral Plasma Solver (FOM) Hermite-Fourier Expansion
 
 Author: Opal Issan (oissan@ucsd.edu)
-Date: March 2nd, 2024
+Date: Sept 29th, 2024
 """
 import numpy as np
+import pickle
 import scipy.special
 
 
@@ -19,14 +20,14 @@ def psi_ln_aw(xi, n, alpha_s, u_s, v):
     if n == 0:
         return np.exp(-xi ** 2) / np.sqrt(np.pi)
     if n == 1:
-        return np.exp(-xi ** 2) * (2*xi)/np.sqrt(2*np.pi)
+        return np.exp(-xi ** 2) * (2 * xi) / np.sqrt(2 * np.pi)
     else:
-        psi = np.zeros((n+1, len(xi)))
+        psi = np.zeros((n + 1, len(xi)))
         psi[0, :] = np.exp(-xi ** 2) / np.sqrt(np.pi)
-        psi[1, :] = np.exp(-xi ** 2) * (2*xi)/np.sqrt(2*np.pi)
+        psi[1, :] = np.exp(-xi ** 2) * (2 * xi) / np.sqrt(2 * np.pi)
         for jj in range(1, n):
-            factor = - alpha_s * np.sqrt((jj+1)/2)
-            psi[jj+1, :] = (alpha_s * np.sqrt(jj/2) * psi[jj-1, :] + u_s * psi[jj, :] - v * psi[jj, :]) / factor
+            factor = - alpha_s * np.sqrt((jj + 1) / 2)
+            psi[jj + 1, :] = (alpha_s * np.sqrt(jj / 2) * psi[jj - 1, :] + u_s * psi[jj, :] - v * psi[jj, :]) / factor
     return psi[n, :]
 
 
@@ -52,8 +53,8 @@ def D_matrix(Nx, L):
     :param L: float, the length of the spatial domain
     :return: 2D matrix, D matrix (anti-symmetric + diagonal)
     """
-    D = np.zeros((Nx+1, Nx+1), dtype="complex128")
-    for ii, kk in enumerate(range(0, Nx+1)):
+    D = np.zeros((Nx + 1, Nx + 1), dtype="complex128")
+    for ii, kk in enumerate(range(0, Nx + 1)):
         D[ii, ii] = (2 * np.pi * 1j * kk) / L
     return scipy.sparse.dia_matrix(D)
 
@@ -65,8 +66,8 @@ def D_matrix_full(Nx, L):
     :param L: float, the length of the spatial domain
     :return: 2D matrix, D matrix (anti-symmetric + diagonal)
     """
-    D = np.zeros((2*Nx+1, 2*Nx+1), dtype="complex128")
-    for ii, kk in enumerate(range(-Nx, Nx+1)):
+    D = np.zeros((2 * Nx + 1, 2 * Nx + 1), dtype="complex128")
+    for ii, kk in enumerate(range(-Nx, Nx + 1)):
         D[ii, ii] = (2 * np.pi * 1j * kk) / L
     return scipy.sparse.dia_matrix(D)
 
@@ -92,22 +93,11 @@ def D_matrix_inv_full(Nx, L):
     :param L: float, the length of the spatial domain
     :return: 2D matrix, D matrix (anti-symmetric + diagonal)
     """
-    D = np.zeros(((2*Nx + 1), (2*Nx + 1)), dtype="complex128")
+    D = np.zeros(((2 * Nx + 1), (2 * Nx + 1)), dtype="complex128")
     for ii, kk in enumerate(range(-Nx, Nx + 1)):
         if kk != 0:
             D[ii, ii] = L / (2 * np.pi * 1j * kk)
     return scipy.sparse.dia_matrix(D)
-
-
-def nu_func(n, Nv):
-    """coefficient for nonlinear acceleration term
-
-    :param nu: float, collisional frequency
-    :param n: int, index of spectral term
-    :param Nv: int, total number of Hermite spectral expansion coefficients
-    :return: float, coefficient for nonlinear acceleration term
-    """
-    return (n * (n - 1) * (n - 2)) / ((Nv - 1) * (Nv - 2) * (Nv - 3))
 
 
 def A_matrix_diag(Nv, D):
@@ -120,32 +110,42 @@ def A_matrix_diag(Nv, D):
     return -scipy.sparse.kron(scipy.sparse.identity(n=Nv), D, format="csr")
 
 
-def A_matrix_col(Nx_total, Nv, M0, MF):
+def A_matrix_col(Nx_total, Nv, M0, MF, col_type="hyper"):
     """
 
     :param M0: matrix 0th index
     :param MF: matrix final index
     :param Nv: int, total number of Hermite spectral expansion coefficients
     :param Nx_total: int, total number of Fourier spectral expansion coefficients (Nx + 1)
+    :param col_type: str, type of collisional operator
     :param nu: float, collisional frequency
     :return: 2D matrix, A matrix in linear advection term
     """
-    A = np.zeros((MF-M0, MF-M0), dtype="complex128")
+    A = np.zeros((MF - M0, MF - M0), dtype="complex128")
     for ii, n in enumerate(range(M0, MF)):
         # main diagonal
-        A[ii, ii] = nu_func(n=n, Nv=Nv)
+        if col_type == "hyper":
+            A[ii, ii] = (n * (n - 1) * (n - 2)) / ((Nv - 1) * (Nv - 2) * (Nv - 3))
+        elif col_type == "LB":
+            A[ii, ii] = n
+        elif col_type == "LB_modified":
+            if n > 2:
+                A[ii, ii] = n - 2
+        elif col_type == "none":
+            A[ii, ii] = 0
     return -scipy.sparse.kron(A, scipy.sparse.identity(n=Nx_total), format="csr")
 
 
-def A_matrix_off(M0, MF, D):
+def A_matrix_off(M0, MF, D, closure_type="truncation"):
     """A matrix in linear advection term
 
     :param M0: matrix 0th index
     :param MF: matrix final index
     :param D: matrix, diagonal matrix with Fourier derivative coefficients
+    :param closure_type: str, type of closure used, e.g. "truncation"
     :return: 2D matrix, A matrix in linear advection term
     """
-    A = np.zeros((MF-M0, MF-M0), dtype="complex128")
+    A = np.zeros((MF - M0, MF - M0), dtype="complex128")
     for ii, n in enumerate(range(M0, MF)):
         if n != M0:
             # lower diagonal
@@ -153,7 +153,28 @@ def A_matrix_off(M0, MF, D):
         if n != MF - 1:
             # upper diagonal
             A[ii, ii + 1] = -np.sqrt((n + 1) / 2)
-    return scipy.sparse.kron(A, D, format="csr")
+    if closure_type == "truncation":
+        return scipy.sparse.kron(A, D, format="csr")
+    elif closure_type == "hammett_perkins":
+        A_off = scipy.sparse.kron(A, D, format="csr")
+        Nx_total = np.shape(D)[0]
+        with open("../aw_hermite/optimal_q1_HP/coeff_" + str(MF) + ".txt", "wb") as outf:
+            c = pickle.load(outf)
+        A_off[(MF - 1) * Nx_total:, (MF - 1) * Nx_total:] = np.sqrt(MF / 2) * c * 1j * D @ k_matrix(Nx=(Nx_total - 1) // 2)
+        return A_off
+
+
+def k_matrix(Nx):
+    """matrix for hammett-perkins style closure term
+
+    :param Nx: resolution in spatial direction x
+    :return: K_matrix (diagonal matrix)
+    """
+    K_matrix = np.zeros((2 * Nx + 1, 2 * Nx + 1))
+    for ii, kk in enumerate(range(-Nx, Nx + 1)):
+        if kk != 0:
+            K_matrix[ii, ii] = kk / np.abs(kk)
+    return K_matrix
 
 
 def B(Nx_total, M0, MF):
@@ -164,7 +185,7 @@ def B(Nx_total, M0, MF):
     :param Nx_total: int, number of Fourier spectral expansion coefficients (total is 2Nx + 1)
     :return: 2D matrix, B matrix of acceleration term
     """
-    B = np.zeros((MF-M0, MF-M0))
+    B = np.zeros((MF - M0, MF - M0))
     for ii, n in enumerate(range(M0, MF)):
         # lower diagonal
         if ii >= 1:
@@ -179,7 +200,7 @@ def B_2(M0, MF):
     :param MF: final n index
     :return: 2D matrix, B matrix of acceleration term
     """
-    B = np.zeros((MF-M0, MF-M0))
+    B = np.zeros((MF - M0, MF - M0))
     for ii, n in enumerate(range(M0, MF)):
         # lower diagonal
         if ii >= 1:
