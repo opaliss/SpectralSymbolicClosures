@@ -28,7 +28,7 @@ def rhs(y):
 if __name__ == "__main__":
     setup = SimulationSetupFOM(Nx=20,
                                Nx_total=41,
-                               Nv=10,
+                               Nv=100,
                                epsilon=1e-2,
                                alpha_e=1.5,
                                alpha_i=np.sqrt(2 / 1836),
@@ -38,7 +38,7 @@ if __name__ == "__main__":
                                dt=1e-2,
                                T0=0,
                                T=30,
-                               nu=8,
+                               nu=0,
                                col_type="hyper",
                                closure_type="truncation")
 
@@ -74,12 +74,12 @@ if __name__ == "__main__":
     print("runtime wall = ", end_time_wall)
 
     # make directory
-    if not os.path.exists("../data/linear_landau"):
-        os.makedirs("../data/linear_landau")
+    if not os.path.exists("data/linear_landau"):
+        os.makedirs("data/linear_landau")
 
     # save results
-    np.save("../data/linear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), sol_midpoint_u)
-    np.save("../data/linear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup.t_vec)
+    np.save("data/linear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), sol_midpoint_u)
+    np.save("data/linear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup.t_vec)
 
     # save parameters
-    np.save("../data/linear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup)
+    np.save("data/linear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup)
