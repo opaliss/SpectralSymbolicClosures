@@ -131,9 +131,15 @@ def A_matrix_col(Nx_total, Nv, M0, MF, col_type="hyper"):
         elif col_type == "LB_modified":
             if n > 2:
                 A[ii, ii] = n - 2
-        elif col_type == "none":
+        elif col_type == "collisionless":
             A[ii, ii] = 0
     return -scipy.sparse.kron(A, scipy.sparse.identity(n=Nx_total), format="csr")
+
+
+def A_linear_component(M0, MF, Nx, L):
+    A = np.zeros((MF-M0, MF-M0))
+    A[1, 0] = 1
+    return scipy.sparse.kron(A, D_matrix_inv_full(Nx=Nx, L=L))
 
 
 def A_matrix_off(M0, MF, D, closure_type="truncation"):
@@ -156,11 +162,15 @@ def A_matrix_off(M0, MF, D, closure_type="truncation"):
     if closure_type == "truncation":
         return scipy.sparse.kron(A, D, format="csr")
     elif closure_type == "hammett_perkins":
-        A_off = np.kron(A, D)
+        A_off = scipy.sparse.kron(A, D).toarray()
         Nx_total = np.shape(D)[0]
-        with open("../aw_hermite/optimal_q1_HP/coeff_" + str(MF) + ".txt", "rb") as outf:
-            print(outf)
-            c = float(pickle.load(outf))
+        try:
+            with open("../aw_hermite/optimal_q1_HP/coeff_" + str(MF) + ".txt", "rb") as outf:
+                c = float(pickle.load(outf))
+                c = -1.22
+        except:
+            c = -1
+            print("c = ", c)
         A_off[(MF - 1) * Nx_total:, (MF - 1) * Nx_total:] = - np.sqrt(MF / 2) * c * 1j * D @ k_matrix(Nx=(Nx_total - 1) // 2)
         return A_off
 
@@ -173,8 +183,7 @@ def k_matrix(Nx):
     """
     K_matrix = np.zeros((2 * Nx + 1, 2 * Nx + 1))
     for ii, kk in enumerate(range(-Nx, Nx + 1)):
-        if kk != 0:
-            K_matrix[ii, ii] = np.sign(kk)
+        K_matrix[ii, ii] = np.sign(kk)
     return K_matrix
 
 

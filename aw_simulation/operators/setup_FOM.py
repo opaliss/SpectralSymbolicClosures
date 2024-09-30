@@ -3,8 +3,8 @@ from operators.FOM import D_matrix_inv_full, D_matrix_full, A_matrix_off, A_matr
 
 
 class SimulationSetupFOM:
-    def __init__(self, Nx, Nx_total, Nv, epsilon, alpha_e, alpha_i, u_e, u_i, L, dt, T0, T, nu,
-                 m_e=1, m_i=1836, q_e=-1, q_i=1, ions=False, col_type="hyper", closure_type="truncation"):
+    def __init__(self, Nx, Nx_total, Nv, epsilon, alpha_e, alpha_i, u_e, u_i, L, dt, T0, T, nu, col_type, closure_type,
+                 m_e=1, m_i=1836, q_e=-1, q_i=1, ions=False):
         # set up configuration parameters
         # number of mesh points in x
         self.Nx = Nx

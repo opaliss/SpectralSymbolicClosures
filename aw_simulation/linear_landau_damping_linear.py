@@ -10,25 +10,21 @@ sys.path.append(os.path.abspath(os.path.join('..')))
 from operators.FOM import nonlinear_full, charge_density
 from operators.implicit_midpoint_FOM import implicit_midpoint_solver_FOM
 from operators.setup_FOM import SimulationSetupFOM
+from operators.FOM import A_linear_component
 import time
 import numpy as np
 
 
 def rhs(y):
     # electric field computed
-    E = setup.D_inv @ charge_density(alpha_e=setup.alpha_e, alpha_i=setup.alpha_i,
-                                     q_e=setup.q_e, q_i=setup.q_i,
-                                     C0_electron=y[:setup.Nx_total],
-                                     C0_ions=C0_ions)
-
-    # evolving only electrons
-    return setup.A_e @ y + setup.B_e @  nonlinear_full(E=E, psi=y, Nv=setup.Nv, Nx_total=setup.Nx_total)
+    linear_operator = setup.A_e + A_linear_component(M0=0, MF=setup.Nv, Nx=setup.Nx, L=setup.L)
+    return linear_operator @ y
 
 
 if __name__ == "__main__":
-    setup = SimulationSetupFOM(Nx=20,
-                               Nx_total=41,
-                               Nv=6,
+    setup = SimulationSetupFOM(Nx=1,
+                               Nx_total=3,
+                               Nv=3,
                                epsilon=1e-2,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
@@ -37,15 +33,17 @@ if __name__ == "__main__":
                                L=2 * np.pi,
                                dt=1e-2,
                                T0=0,
-                               T=10,
+                               T=20,
                                nu=0,
-                               col_type="LB",
+                               col_type="collisionless",
                                closure_type="hammett_perkins")
 
     # initial condition: read in result from previous simulation
-    y0 = np.zeros(setup.Nv * setup.Nx_total, dtype="complex128")
+    y0 = np.zeros(setup.Nv * setup.Nx_total)
+    y_equib = np.zeros(setup.Nv * setup.Nx_total)
+    y_equib[setup.Nx] = 1 / setup.alpha_e
     # electron equilibrium
-    y0[setup.Nx] = 1 / setup.alpha_e
+    # y0[setup.Nx] = 1 / setup.alpha_e
     # electron perturbation
     y0[setup.Nx + 1] = 0.5 * setup.epsilon / setup.alpha_e
     y0[setup.Nx - 1] = 0.5 * setup.epsilon / setup.alpha_e
