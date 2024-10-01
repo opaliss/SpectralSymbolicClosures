@@ -167,7 +167,7 @@ def A_matrix_off(M0, MF, D, closure_type="truncation"):
         try:
             with open("../aw_hermite/optimal_q1_HP/coeff_" + str(MF) + ".txt", "rb") as outf:
                 c = float(pickle.load(outf))
-                c = -1.22
+                print("c = ", c)
         except:
             c = -1
             print("c = ", c)

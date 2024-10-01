@@ -28,7 +28,7 @@ def rhs(y):
 if __name__ == "__main__":
     setup = SimulationSetupFOM(Nx=1,
                                Nx_total=3,
-                               Nv=50,
+                               Nv=4,
                                epsilon=1e-2,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
@@ -38,14 +38,12 @@ if __name__ == "__main__":
                                dt=1e-2,
                                T0=0,
                                T=20,
-                               nu=0,
-                               col_type="collisionless",
-                               closure_type="hammett_perkins")
+                               nu=1,
+                               col_type="LB_modified",
+                               closure_type="truncation")
 
     # initial condition: read in result from previous simulation
     y0 = np.zeros(setup.Nv * setup.Nx_total, dtype="complex128")
-    y_equib = np.zeros(setup.Nv * setup.Nx_total, dtype="complex128")
-    y_equib[setup.Nx] = 1 / setup.alpha_e
     # electron equilibrium
     y0[setup.Nx] = 1 / setup.alpha_e
     # electron perturbation
