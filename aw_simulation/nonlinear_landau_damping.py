@@ -34,7 +34,7 @@ if __name__ == "__main__":
                                alpha_i=np.sqrt(2 / 1836),
                                u_e=0,
                                u_i=0,
-                               L=2 * np.pi,
+                               L=4 * np.pi,
                                dt=0.01,
                                T0=0,
                                T=40,
