@@ -26,20 +26,20 @@ def rhs(y):
 
 
 if __name__ == "__main__":
-    setup = SimulationSetupFOM(Nx=1,
-                               Nx_total=3,
-                               Nv=4,
+    setup = SimulationSetupFOM(Nx=50,
+                               Nx_total=101,
+                               Nv=200,
                                epsilon=0.3,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
                                u_e=0,
                                u_i=0,
                                L=2 * np.pi,
-                               dt=1e-2,
+                               dt=0.01,
                                T0=0,
-                               T=20,
+                               T=40,
                                nu=1,
-                               col_type="LB_modified",
+                               col_type="hyper",
                                closure_type="truncation")
 
     # initial condition: read in result from previous simulation
