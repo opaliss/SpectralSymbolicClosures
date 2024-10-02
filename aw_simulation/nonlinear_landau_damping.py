@@ -26,10 +26,10 @@ def rhs(y):
 
 
 if __name__ == "__main__":
-    setup = SimulationSetupFOM(Nx=200,
-                               Nx_total=401,
+    setup = SimulationSetupFOM(Nx=100,
+                               Nx_total=201,
                                Nv=250,
-                               epsilon=0.5,
+                               epsilon=0.1,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
                                u_e=0,
@@ -37,7 +37,7 @@ if __name__ == "__main__":
                                L=4 * np.pi,
                                dt=0.01,
                                T0=0,
-                               T=40,
+                               T=20,
                                nu=1,
                                col_type="hyper",
                                closure_type="truncation")
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     sol_midpoint_u, setup = implicit_midpoint_solver_FOM(y_0=y0,
                                                          right_hand_side=rhs,
                                                          r_tol=1e-8,
-                                                         a_tol=1e-12,
+                                                         a_tol=1e-10,
                                                          max_iter=100,
                                                          param=setup,
                                                          adaptive=False)

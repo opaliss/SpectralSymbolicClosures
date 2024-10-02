@@ -133,6 +133,8 @@ def A_matrix_col(Nx_total, Nv, M0, MF, col_type="hyper"):
                 A[ii, ii] = n - 2
         elif col_type == "collisionless":
             A[ii, ii] = 0
+        else:
+            return print("we do not have the " + str(col_type) + " collisional operator implemented!")
     return -scipy.sparse.kron(A, scipy.sparse.identity(n=Nx_total), format="csr")
 
 
