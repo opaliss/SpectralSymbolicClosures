@@ -26,10 +26,10 @@ def rhs(y):
 
 
 if __name__ == "__main__":
-    setup = SimulationSetupFOM(Nx=50,
-                               Nx_total=101,
-                               Nv=200,
-                               epsilon=0.3,
+    setup = SimulationSetupFOM(Nx=200,
+                               Nx_total=401,
+                               Nv=250,
+                               epsilon=0.5,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
                                u_e=0,
