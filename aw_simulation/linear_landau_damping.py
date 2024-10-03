@@ -26,9 +26,9 @@ def rhs(y):
 
 
 if __name__ == "__main__":
-    setup = SimulationSetupFOM(Nx=1,
-                               Nx_total=3,
-                               Nv=50,
+    setup = SimulationSetupFOM(Nx=10,
+                               Nx_total=21,
+                               Nv=20,
                                epsilon=1e-2,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
@@ -37,8 +37,8 @@ if __name__ == "__main__":
                                L=4 * np.pi,
                                dt=1e-2,
                                T0=0,
-                               T=20,
-                               nu=4,
+                               T=40,
+                               nu=14,
                                col_type="hyper",
                                closure_type="truncation")
 
@@ -46,9 +46,13 @@ if __name__ == "__main__":
     y0 = np.zeros(setup.Nv * setup.Nx_total, dtype="complex128")
     # electron equilibrium
     y0[setup.Nx] = 1 / setup.alpha_e
-    # electron perturbation
+    # first electron perturbation
     y0[setup.Nx + 1] = 0.5 * setup.epsilon / setup.alpha_e
     y0[setup.Nx - 1] = 0.5 * setup.epsilon / setup.alpha_e
+    # second electron perturbation
+    y0[setup.Nx + 3] = 0.5 * setup.epsilon / setup.alpha_e
+    y0[setup.Nx - 3] = 0.5 * setup.epsilon / setup.alpha_e
+
 
     # ions (unperturbed)
     C0_ions = np.zeros(setup.Nx_total)

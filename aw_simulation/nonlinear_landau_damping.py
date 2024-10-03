@@ -28,8 +28,8 @@ def rhs(y):
 if __name__ == "__main__":
     setup = SimulationSetupFOM(Nx=100,
                                Nx_total=201,
-                               Nv=250,
-                               epsilon=0.1,
+                               Nv=300,
+                               epsilon=0.5,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
                                u_e=0,
@@ -37,7 +37,7 @@ if __name__ == "__main__":
                                L=4 * np.pi,
                                dt=0.01,
                                T0=0,
-                               T=20,
+                               T=100,
                                nu=1,
                                col_type="hyper",
                                closure_type="truncation")
@@ -77,9 +77,12 @@ if __name__ == "__main__":
     if not os.path.exists("data/nonlinear_landau"):
         os.makedirs("data/nonlinear_landau")
 
+    # save results every n steps
+    skip = 10
+
     # save results
-    np.save("data/nonlinear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), sol_midpoint_u)
-    np.save("data/nonlinear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup.t_vec)
+    np.save("data/nonlinear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), sol_midpoint_u[:, ::skip])
+    np.save("data/nonlinear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup.t_vec[::skip])
 
     # save parameters
     np.save("data/nonlinear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup)

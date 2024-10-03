@@ -171,7 +171,7 @@ def A_matrix_off(M0, MF, D, closure_type="truncation"):
                 c = float(pickle.load(outf))
                 print("c = ", c)
         except:
-            c = -1
+            c = -0.912
             print("c = ", c)
         A_off[(MF - 1) * Nx_total:, (MF - 1) * Nx_total:] = - np.sqrt(MF / 2) * c * 1j * D @ k_matrix(Nx=(Nx_total - 1) // 2)
         return A_off
