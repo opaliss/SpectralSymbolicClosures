@@ -38,9 +38,9 @@ if __name__ == "__main__":
                                dt=0.01,
                                T0=0,
                                T=100,
-                               nu=1,
-                               col_type="hyper",
-                               closure_type="truncation")
+                               nu=0.,
+                               col_type="collisionless",
+                               closure_type="hammett_perkins")
 
     # initial condition: read in result from previous simulation
     y0 = np.zeros(setup.Nv * setup.Nx_total, dtype="complex128")

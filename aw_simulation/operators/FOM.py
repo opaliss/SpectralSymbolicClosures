@@ -164,7 +164,7 @@ def A_matrix_off(M0, MF, D, closure_type="truncation"):
     if closure_type == "truncation":
         return scipy.sparse.kron(A, D, format="csr")
     elif closure_type == "hammett_perkins":
-        A_off = scipy.sparse.kron(A, D).toarray()
+        A_off = scipy.sparse.kron(A, D, format="csr")
         Nx_total = np.shape(D)[0]
         try:
             with open("../aw_hermite/optimal_q1_HP/coeff_" + str(MF) + ".txt", "rb") as outf:
