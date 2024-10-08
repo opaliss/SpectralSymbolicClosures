@@ -1,7 +1,7 @@
 """Module to run the nonlinear Landau damping testcase
 
 Author: Opal Issan
-Date: Oct 1st, 2024
+Date: Oct 5th, 2024
 """
 import sys, os
 
@@ -28,7 +28,7 @@ def rhs(y):
 if __name__ == "__main__":
     setup = SimulationSetupFOM(Nx=100,
                                Nx_total=201,
-                               Nv=300,
+                               Nv=2048,
                                epsilon=0.5,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
@@ -38,9 +38,9 @@ if __name__ == "__main__":
                                dt=0.01,
                                T0=0,
                                T=100,
-                               nu=0.,
+                               nu=0,
                                col_type="collisionless",
-                               closure_type="hammett_perkins")
+                               closure_type="truncation")
 
     # initial condition: read in result from previous simulation
     y0 = np.zeros(setup.Nv * setup.Nx_total, dtype="complex128")
@@ -81,8 +81,8 @@ if __name__ == "__main__":
     skip = 10
 
     # save results
-    np.save("data/nonlinear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), sol_midpoint_u[:, ::skip])
-    np.save("data/nonlinear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup.t_vec[::skip])
+    np.save("data/nonlinear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_nu_" + str(setup.nu), sol_midpoint_u[:, ::skip])
+    np.save("data/nonlinear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_nu_" + str(setup.nu), setup.t_vec[::skip])
 
     # save parameters
-    np.save("data/nonlinear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup)
+    np.save("data/nonlinear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type)+ "_nu_" + str(setup.nu), setup)

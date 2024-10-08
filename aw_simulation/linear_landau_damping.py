@@ -38,8 +38,8 @@ if __name__ == "__main__":
                                dt=1e-2,
                                T0=0,
                                T=40,
-                               nu=14,
-                               col_type="hyper",
+                               nu=0,
+                               col_type="collisionless",
                                closure_type="truncation")
 
     # initial condition: read in result from previous simulation
