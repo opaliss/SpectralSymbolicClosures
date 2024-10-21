@@ -1,7 +1,7 @@
 """Module to run the nonlinear Landau damping testcase
 
 Author: Opal Issan
-Date: Oct 5th, 2024
+Date: Oct 18th, 2024
 """
 import sys, os
 
@@ -28,7 +28,7 @@ def rhs(y):
 if __name__ == "__main__":
     setup = SimulationSetupFOM(Nx=100,
                                Nx_total=201,
-                               Nv=2048,
+                               Nv=300,
                                epsilon=0.5,
                                alpha_e=np.sqrt(2),
                                alpha_i=np.sqrt(2 / 1836),
@@ -61,8 +61,8 @@ if __name__ == "__main__":
     # integrate (implicit midpoint)
     sol_midpoint_u, setup = implicit_midpoint_solver_FOM(y_0=y0,
                                                          right_hand_side=rhs,
-                                                         r_tol=1e-8,
-                                                         a_tol=1e-10,
+                                                         r_tol=1e-10,
+                                                         a_tol=1e-12,
                                                          max_iter=100,
                                                          param=setup,
                                                          adaptive=False)
@@ -85,4 +85,4 @@ if __name__ == "__main__":
     np.save("data/nonlinear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_nu_" + str(setup.nu), setup.t_vec[::skip])
 
     # save parameters
-    np.save("data/nonlinear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type)+ "_nu_" + str(setup.nu), setup)
+    np.save("data/nonlinear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_nu_" + str(setup.nu), setup)
