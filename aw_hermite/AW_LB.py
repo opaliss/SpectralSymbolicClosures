@@ -2,11 +2,9 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join('..')))
 
 import sympy
-from sympy import banded, ones, Matrix, symbols, sqrt, print_latex, oo
+from sympy import banded, symbols
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy
-from scipy.special import wofz
 import pickle
 
 
