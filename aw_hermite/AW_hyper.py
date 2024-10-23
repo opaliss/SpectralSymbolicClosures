@@ -22,7 +22,7 @@ for Nv in np.arange(4, 22, 2):
     # hypercollisionality order ~ n^{2alpha -1}
     # alpha = 1 (Lenard Bernstein 1958) ~n
     # alpha = 2 (Camporeale 2006) ~n^3
-    for alpha in np.arange(1, 6):
+    for alpha in np.arange(1, int(np.floor(Nv/2))):
 
         # symbolic variables
         xi = symbols('xi')
@@ -37,11 +37,10 @@ for Nv in np.arange(4, 22, 2):
             vec[jj - 1] = sympy.sqrt(jj) / (sympy.sqrt(2))
 
         # advection matrix (main-diagonal)
-        const_factor = sympy.factorial(4)
         vec2 = sympy.zeros(Nv)
-        for nn in range(0, Nv + 1):
+        for nn in range(alpha, Nv + 1):
             # hyper collisions coefficient
-            vec2[nn] = sympy.Rational(factorial_ratio(n=jj, m=jj - 2 * alpha + 1),
+            vec2[nn] = sympy.Rational(factorial_ratio(n=nn, m=nn - 2 * alpha + 1),
                                       1 / factorial_ratio(n=Nv - 2 * alpha, m=Nv - 1))
 
         # enforce k=1 for simplicity now
