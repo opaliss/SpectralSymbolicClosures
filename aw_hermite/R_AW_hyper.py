@@ -67,9 +67,9 @@ for Nv in np.arange(4, 22, 2):
         with open("optimal_nu_hyper_" + str(alpha) + "/nu_" + str(Nv) + ".txt", "wb") as outf:
             pickle.dump(sol_coeff[0], outf)
 
-            # save optimal R(nu*) (for k=1)
-            with open("optimal_R_hyper_" + str(alpha) + "/R_" + str(Nv) + ".txt", "wb") as outf:
-                pickle.dump(sympy.simplify(R_approx.subs(nu, sol_coeff[0].real)), outf)
+        # save optimal R(nu*) (for k=1)
+        with open("optimal_R_hyper_" + str(alpha) + "/R_" + str(Nv) + ".txt", "wb") as outf:
+            pickle.dump(sympy.simplify(R_approx.subs(nu, sol_coeff[0].real)), outf)
 
         print(sol_coeff)
         print("completed hypercollisional operator")
