@@ -8,7 +8,7 @@ import numpy as np
 import pickle
 
 # setup the number of Hermite moments
-Nv = 14
+Nv = 16
 
 # initialize the symbolic variables
 xi = symbols('xi')

@@ -9,7 +9,9 @@ import scipy
 import pickle
 
 # number of moments
-Nv = 14
+Nv = 4
+# hyperviscosity order
+alpha = 3
 
 # symbolic variables
 xi = symbols('xi')
@@ -24,10 +26,11 @@ for jj in range(1, Nv + 1):
     vec[jj - 1] = sympy.sqrt(jj) / (sympy.sqrt(2))
 
 # advection matrix (main-diagonal)
+const_factor = sympy.factorial(4)
 vec2 = sympy.zeros(Nv)
-for jj in range(0, Nv + 1):
+for nn in range(0, Nv + 1):
     # hyper collisions coefficient
-    vec2[jj] = sympy.Rational(jj * (jj - 1) * (jj - 2), (Nv - 1) * (Nv - 2) * (Nv - 3))
+    vec2[nn] = -np.power(-1, alpha) * sympy.Rational(scipy.special.factorial(nn, exact=True) * scipy.special.factorial(Nv - 1 - alpha, exact=True), scipy.special.factorial(Nv - 1, exact=True) * scipy.special.factorial(nn - alpha, exact=True))
 
 # enforce k=1 for simplicity now
 k = 1
@@ -50,11 +53,11 @@ func = sympy.lambdify(nu, asymptotics_0.coeff(xi, 1) + sympy.I * sympy.sqrt(symp
 sol_coeff = scipy.optimize.newton(func, x0=1, maxiter=20000, rtol=1e-3, full_output=True)
 
 # save optimal nu (for k=1)
-with open("optimal_nu_hyper/nu_" + str(Nv) + ".txt", "wb") as outf:
+with open("optimal_nu_hyper_" + str(alpha) + "/nu_" + str(Nv) + ".txt", "wb") as outf:
     pickle.dump(sol_coeff[0], outf)
 
     # save optimal R(nu*) (for k=1)
-    with open("optimal_R_hyper/R_" + str(Nv) + ".txt", "wb") as outf:
+    with open("optimal_R_hyper_" + str(alpha) + "/R_" + str(Nv) + ".txt", "wb") as outf:
         pickle.dump(sympy.simplify(R_approx.subs(nu, sol_coeff[0].real)), outf)
 
 print(sol_coeff)
