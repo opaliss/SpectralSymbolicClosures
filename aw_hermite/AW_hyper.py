@@ -18,11 +18,11 @@ def factorial_ratio(n, m):
 
 
 # loop over velocity resolutions
-for Nv in np.arange(4, 20, 2):
+for Nv in np.arange(4, 22, 2):
     # hypercollisionality order ~ n^{2alpha -1}
     # alpha = 1 (Lenard Bernstein 1958) ~n
     # alpha = 2 (Camporeale 2006) ~n^3
-    for alpha in np.arange(1, 5):
+    for alpha in np.arange(1, 6):
 
         # symbolic variables
         xi = symbols('xi')
@@ -73,6 +73,6 @@ for Nv in np.arange(4, 20, 2):
                 pickle.dump(sympy.simplify(R_approx.subs(nu, sol_coeff[0].real)), outf)
 
         print(sol_coeff)
-        print("task completed!")
+        print("completed hypercollisional operator")
         print("Nv = ", Nv)
         print("alpha = ", alpha)
