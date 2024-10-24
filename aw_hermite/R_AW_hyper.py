@@ -40,7 +40,7 @@ for Nv in np.arange(4, 22, 2):
 
         # advection matrix (main-diagonal)
         vec2 = sympy.zeros(Nv)
-        for nn in range(alpha, Nv + 1):
+        for nn in range(0, Nv + 1):
             # hyper collisions coefficient
             vec2[nn] = factorial_ratio(num1=nn, denom1=nn-2*alpha+1, num2=Nv-2*alpha, denom2=Nv-1)
 

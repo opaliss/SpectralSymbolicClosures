@@ -4,7 +4,7 @@ from operators.FOM import D_matrix_inv_full, D_matrix_full, A_matrix_off, A_matr
 
 class SimulationSetupFOM:
     def __init__(self, Nx, Nx_total, Nv, epsilon, alpha_e, alpha_i, u_e, u_i, L, dt, T0, T, nu, col_type, closure_type,
-                 m_e=1, m_i=1836, q_e=-1, q_i=1, ions=False):
+                 m_e=1, m_i=1836, q_e=-1, q_i=1, hyper_rate=0, ions=False):
         # set up configuration parameters
         # number of mesh points in x
         self.Nx = Nx
@@ -41,6 +41,7 @@ class SimulationSetupFOM:
         # type of collisional operator
         self.col_type = col_type
         self.closure_type = closure_type
+        self.hyper_rate = hyper_rate
 
         # matrices
         # Fourier derivative matrix
@@ -50,7 +51,7 @@ class SimulationSetupFOM:
         # matrix of coefficients (advection)
         A_diag = A_matrix_diag(Nv=self.Nv, D=self.D)
         A_off = A_matrix_off(M0=0, MF=self.Nv, D=self.D, closure_type=self.closure_type)
-        A_col = A_matrix_col(Nx_total=self.Nx_total, M0=0, MF=self.Nv, Nv=self.Nv, col_type=self.col_type)
+        A_col = A_matrix_col(Nx_total=self.Nx_total, M0=0, MF=self.Nv, Nv=self.Nv, col_type=self.col_type, hyper_rate=self.hyper_rate)
 
         self.A_e = self.alpha_e * A_off + self.u_e * A_diag + self.nu * A_col
         if ions:

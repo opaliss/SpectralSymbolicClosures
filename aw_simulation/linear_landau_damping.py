@@ -38,8 +38,9 @@ if __name__ == "__main__":
                                dt=1e-2,
                                T0=0,
                                T=40,
-                               nu=0,
-                               col_type="collisionless",
+                               nu=11.74,
+                               hyper_rate=5,
+                               col_type="hyper",
                                closure_type="truncation")
 
     # initial condition: read in result from previous simulation
@@ -82,8 +83,8 @@ if __name__ == "__main__":
         os.makedirs("data/linear_landau")
 
     # save results
-    np.save("data/linear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), sol_midpoint_u)
-    np.save("data/linear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup.t_vec)
+    np.save("data/linear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_" + str(setup.hyper_rate), sol_midpoint_u)
+    np.save("data/linear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_" + str(setup.hyper_rate), setup.t_vec)
 
     # save parameters
-    np.save("data/linear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type), setup)
+    np.save("data/linear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_" + str(setup.hyper_rate), setup)

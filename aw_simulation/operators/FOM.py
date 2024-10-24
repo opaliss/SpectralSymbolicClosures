@@ -110,7 +110,27 @@ def A_matrix_diag(Nv, D):
     return -scipy.sparse.kron(scipy.sparse.identity(n=Nv), D, format="csr")
 
 
-def A_matrix_col(Nx_total, Nv, M0, MF, col_type="hyper"):
+def factorial_ratio(num1, denom1, num2, denom2):
+    """(num1!num2!) / (denom1!denom2!) with num1>denom1 and num2<denom2
+
+    :param num1: int, first numerator
+    :param denom1: int, first denominator
+    :param num2: int, second numerator
+    :param denom2: int, second denominator
+    :return:
+    """
+    vector1 = range(denom1 + 1, num1 + 1)
+    vector2 = range(num2 + 1, denom2 + 1)
+    const = 1
+    for ii in range(len(vector1)):
+        const *= vector1[ii] / vector2[ii]
+    if const >= 0:
+        return const
+    else:
+        print("negative diffusion")
+
+
+def A_matrix_col(Nx_total, Nv, M0, MF, col_type="hyper", hyper_rate=0):
     """
 
     :param M0: matrix 0th index
@@ -119,21 +139,15 @@ def A_matrix_col(Nx_total, Nv, M0, MF, col_type="hyper"):
     :param Nx_total: int, total number of Fourier spectral expansion coefficients (Nx + 1)
     :param col_type: str, type of collisional operator
     :param nu: float, collisional frequency
+    :param hyper_rate: int, 1 (LB) 2 (Camporeale et al. 2006), 3 (higher etc), ... , 9 (Hou-Li filter)
     :return: 2D matrix, A matrix in linear advection term
     """
     A = np.zeros((MF - M0, MF - M0), dtype="complex128")
     for ii, n in enumerate(range(M0, MF)):
         # main diagonal
         if col_type == "hyper":
-            A[ii, ii] = (n * (n - 1) * (n - 2)) / ((Nv - 1) * (Nv - 2) * (Nv - 3))
-        elif col_type == "LB":
-            A[ii, ii] = n
-        elif col_type == "LB_modified":
-            if n > 2:
-                A[ii, ii] = n - 2
-        elif col_type == "collisionless":
-            A[ii, ii] = 0
-        else:
+            A[ii, ii] = factorial_ratio(num1=ii, denom1=ii-2*hyper_rate+1, num2=Nv - 2*hyper_rate, denom2=Nv-1)
+        elif col_type != "collisionless":
             return print("we do not have the " + str(col_type) + " collisional operator implemented!")
     return -scipy.sparse.kron(A, scipy.sparse.identity(n=Nx_total), format="csr")
 
