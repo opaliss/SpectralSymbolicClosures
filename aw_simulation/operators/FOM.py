@@ -130,7 +130,7 @@ def factorial_ratio(num1, denom1, num2, denom2):
         print("negative diffusion")
 
 
-def A_matrix_col(Nx_total, Nv, M0, MF, col_type="hyper", hyper_rate=0):
+def A_matrix_col(Nx_total, Nv, M0, MF, col_type, hyper_rate):
     """
 
     :param M0: matrix 0th index
