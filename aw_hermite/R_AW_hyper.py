@@ -16,7 +16,10 @@ def factorial_ratio(num1, denom1, num2, denom2):
     const = 1
     for ii in range(len(vector1)):
         const *= sympy.Rational(vector1[ii],  vector2[ii])
-    return sympy.simplify(const)
+    if const < 0:
+        return print("alert! negative diffusion")
+    else:
+        return sympy.simplify(const)
 
 
 # loop over velocity resolutions

@@ -39,7 +39,8 @@ if __name__ == "__main__":
                                T0=0,
                                T=100,
                                nu=0,
-                               col_type="collisionless",
+                               hyper_rate=3,
+                               col_type="hyper",
                                closure_type="truncation")
 
     # initial condition: read in result from previous simulation
@@ -81,8 +82,8 @@ if __name__ == "__main__":
     skip = 10
 
     # save results
-    np.save("data/nonlinear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_nu_" + str(setup.nu), sol_midpoint_u[:, ::skip])
-    np.save("data/nonlinear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_nu_" + str(setup.nu), setup.t_vec[::skip])
+    np.save("data/nonlinear_landau/sol_u_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_" + str(setup.hyper_rate) + "_nu_" + str(setup.nu), sol_midpoint_u[:, ::skip])
+    np.save("data/nonlinear_landau/sol_t_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_" + str(setup.hyper_rate) + "_nu_" + str(setup.nu), setup.t_vec[::skip])
 
     # save parameters
-    np.save("data/nonlinear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_nu_" + str(setup.nu), setup)
+    np.save("data/nonlinear_landau/sol_setup_" + str(setup.Nv) + "_closure_" + str(setup.closure_type) + "_collisions_" + str(setup.col_type) + "_" + str(setup.hyper_rate) + "_nu_" + str(setup.nu), setup)
