@@ -9,12 +9,14 @@ import scipy
 import pickle
 
 
-def factorial_ratio(n, m):
-    # return n! / m!
-    if n >= m:
-        return np.prod(range(m + 1, n + 1))
-    else:
-        return 1 / np.prod(range(n + 1, m + 1))
+def factorial_ratio(num1, denom1, num2, denom2):
+    # return (num1!num2!) / (denom1!denom2!) with num1>denom1 and num2<denom2
+    vector1 = range(denom1 + 1, num1 + 1)
+    vector2 = range(num2 + 1, denom2 + 1)
+    const = 1
+    for ii in range(len(vector1)):
+        const *= sympy.Rational(vector1[ii],  vector2[ii])
+    return sympy.simplify(const)
 
 
 # loop over velocity resolutions
@@ -40,8 +42,7 @@ for Nv in np.arange(4, 22, 2):
         vec2 = sympy.zeros(Nv)
         for nn in range(alpha, Nv + 1):
             # hyper collisions coefficient
-            vec2[nn] = sympy.Rational(factorial_ratio(n=nn, m=nn - 2 * alpha + 1),
-                                      1 / factorial_ratio(n=Nv - 2 * alpha, m=Nv - 1))
+            vec2[nn] = factorial_ratio(num1=nn, denom1=nn-2*alpha+1, num2=Nv-2*alpha, denom2=Nv-1)
 
         # enforce k=1 for simplicity now
         k = 1
