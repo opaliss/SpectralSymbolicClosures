@@ -57,7 +57,10 @@ if __name__ == "__main__":
                                         T=25,
                                         nu=12,
                                         n0_e1=0.8,
-                                        n0_e2=0.2)
+                                        n0_e2=0.2,
+                                        closure_type="truncation",
+                                        col_type="hyper",
+                                        hyper_rate=1)
 
     # initial condition: read in result from previous simulation
     y0 = np.zeros(2 * setup.Nv * setup.Nx_total, dtype="complex128")
